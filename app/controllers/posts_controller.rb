@@ -1,16 +1,22 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :set_topic
+  before_action :set_topic_for_index, only: [:index]
+  before_action :set_topic, except: [:index]
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
-  # List all posts under particular topic
+  # List all posts under particular topic (or all posts when no topic provided)
   def index
-    @posts = @topic.posts.order(created_at: :desc)
+    @posts = if @topic
+               @topic.posts.order(created_at: :desc)
+             else
+               Post.includes(:topic).order(created_at: :desc)
+             end
   end
 
   # View a post under particular topic
   def show
-    # @post is set via set_post
+    @comment = @post.comments.build
+    @comments = @post.comments.order(created_at: :asc)
   end
 
   # Create post form under particular topic
@@ -51,6 +57,10 @@ class PostsController < ApplicationController
 
   private
 
+  def set_topic_for_index
+    @topic = Topic.find_by(id: params[:topic_id]) if params[:topic_id].present?
+  end
+
   def set_topic
     @topic = Topic.find(params[:topic_id])
   end
@@ -62,6 +72,6 @@ class PostsController < ApplicationController
   # STRONG PARAMS
   # topic_id can come from nested route OR from query params
   def post_params
-    params.require(:post).permit(:title, :body, :topic_id)
+    params.require(:post).permit(:title, :body, :topic_id, :tag_names)
   end
 end

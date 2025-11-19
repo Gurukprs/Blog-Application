@@ -8,9 +8,8 @@ if defined?(StrongMigrations)
   StrongMigrations.lock_timeout = 10.seconds
   StrongMigrations.statement_timeout = 1.hour
 
-  # Analyze tables after indexes are added
-  # Outdated statistics can sometimes hurt performance
-  StrongMigrations.auto_analyze = true
+  # Analyze tables after indexes are added (disable for adapters that do not support it)
+  StrongMigrations.auto_analyze = false
 
 # Set the version of the production database
 # so the right checks are run in development
