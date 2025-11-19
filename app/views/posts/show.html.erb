@@ -1,0 +1,6 @@
+<h1><%= @post.title %></h1>
+<p><%= @post.body %></p>
+<p>Topic: <%= link_to @topic.name, topic_posts_path(@topic) %></p>
+<%= link_to 'Edit', edit_topic_post_path(@topic, @post) %> |
+<%= link_to 'Delete', topic_post_path(@topic, @post), method: :delete, data: { confirm: 'Are you sure?' } %> |
+<%= link_to 'Back to Posts', topic_posts_path(@topic) %>
