@@ -6,11 +6,14 @@ class PostsController < ApplicationController
 
   # List all posts under particular topic (or all posts when no topic provided)
   def index
-    @posts = if @topic
-               @topic.posts.includes(:tags).order(created_at: :desc)
-             else
-               Post.includes(:topic, :tags).order(created_at: :desc)
-             end
+    scope = Post.all
+    scope = scope.where(topic_id: @topic.id) if @topic
+
+    @posts = scope
+               .includes(:topic, :tags)
+               .order(created_at: :desc)
+               .page(params[:page])
+               .per(10)
   end
 
   # View a post under particular topic

@@ -14,7 +14,10 @@
   <ul>
     <% @posts.each do |post| %>
       <li>
-        <h2><%= link_to post.title, topic_post_path(post.topic, post) %></h2>
+        <h2>
+          <%= link_to "#{post.title} (#{post.topic.name})",
+                      topic_post_path(post.topic, post) %>
+        </h2>
         <p><%= truncate(post.body, length: 200) %></p>
         <% unless @topic %>
           <p><strong>Topic:</strong> <%= link_to post.topic.name, topic_posts_path(post.topic) %></p>
@@ -31,6 +34,33 @@
   <% else %>
     <p>No posts available.</p>
   <% end %>
+<% end %>
+
+<% if @posts.respond_to?(:current_page) && @posts.total_pages > 1 %>
+  <nav class="pagination-nav">
+    <% prev_page = @posts.prev_page %>
+    <% next_page = @posts.next_page %>
+
+    <% if prev_page %>
+      <%= link_to "Previous Page",
+                  url_for(page: prev_page),
+                  class: "pagination-button" %>
+    <% else %>
+      <span class="pagination-button disabled">Previous Page</span>
+    <% end %>
+
+    <span class="pagination-button current">
+      Page <%= @posts.current_page %> of <%= @posts.total_pages %>
+    </span>
+
+    <% if next_page %>
+      <%= link_to "Next Page",
+                  url_for(page: next_page),
+                  class: "pagination-button" %>
+    <% else %>
+      <span class="pagination-button disabled">Next Page</span>
+    <% end %>
+  </nav>
 <% end %>
 
 <%= link_to "Back to Topics", topics_path %>

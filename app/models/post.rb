@@ -23,12 +23,22 @@ class Post < ApplicationRecord
     end
   end
 
+  def tag_names=(value)
+    self.pending_tag_names ||= []
+    normalized_names = value.to_s.split(",").map { |name| name.strip.downcase }.reject(&:blank?)
+    self.pending_tag_names = (pending_tag_names + normalized_names).uniq
+  end
+
+  def tag_names
+    tags.pluck(:name).join(", ")
+  end
+
   private
 
   def sync_pending_tags
     return if pending_tag_names.blank?
 
-    new_tags = pending_tag_names.map do |name|
+    new_tags = pending_tag_names.uniq.map do |name|
       Tag.find_or_create_by(name: name)
     end
 
