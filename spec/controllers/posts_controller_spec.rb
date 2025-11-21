@@ -82,6 +82,8 @@ RSpec.describe PostsController, type: :controller do
   end
 
   describe 'POST #create' do
+    let!(:existing_tag) { create(:tag, name: 'rails') }
+
     context 'with valid parameters' do
       it 'creates a new post under a particular topic' do
         expect {
@@ -106,6 +108,35 @@ RSpec.describe PostsController, type: :controller do
 
         new_post = Post.last
         expect(new_post.topic_id).to eq(topic.id)
+      end
+
+      it 'associates existing tags when tag_ids are provided' do
+        post_request :create,
+                      params: {
+                        topic_id: topic.id,
+                        post: valid_attributes.merge(tag_ids: [existing_tag.id])
+                      }
+
+        new_post = Post.last
+        expect(new_post.tags).to include(existing_tag)
+      end
+
+      it 'creates new tags from nested attributes' do
+        expect {
+          post_request :create,
+                        params: {
+                          topic_id: topic.id,
+                          post: valid_attributes.merge(
+                            tags_attributes: {
+                              "0" => { name: 'Ruby' },
+                              "1" => { name: '' }
+                            }
+                          )
+                        }
+        }.to change(Tag, :count).by(1)
+
+        new_post = Post.last
+        expect(new_post.tags.pluck(:name)).to include('ruby')
       end
     end
 

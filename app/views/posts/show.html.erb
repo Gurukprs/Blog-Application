@@ -7,7 +7,11 @@
 <% end %>
 
 <%= link_to 'Edit', edit_topic_post_path(@topic, @post) %> |
-<%= link_to 'Delete', topic_post_path(@topic, @post), method: :delete, data: { confirm: 'Are you sure?' } %> |
+<%= button_to 'Delete',
+              topic_post_path(@topic, @post),
+              method: :delete,
+              data: { confirm: 'Are you sure?' },
+              form: { style: 'display:inline' } %> |
 <%= link_to 'Back to Posts', topic_posts_path(@topic) %>
 
 <hr>
@@ -20,7 +24,11 @@
       <li>
         <p><%= simple_format(comment.body) %></p>
         <small><%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %></small>
-        <%= link_to 'Delete', topic_post_comment_path(@topic, @post, comment), method: :delete, data: { confirm: 'Delete this comment?' } %>
+        <%= button_to 'Delete',
+                      topic_post_comment_path(@topic, @post, comment),
+                      method: :delete,
+                      data: { confirm: 'Delete this comment?' },
+                      form: { style: 'display:inline' } %>
       </li>
     <% end %>
   </ul>

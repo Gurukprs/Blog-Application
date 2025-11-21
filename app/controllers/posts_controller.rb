@@ -7,9 +7,9 @@ class PostsController < ApplicationController
   # List all posts under particular topic (or all posts when no topic provided)
   def index
     @posts = if @topic
-               @topic.posts.order(created_at: :desc)
+               @topic.posts.includes(:tags).order(created_at: :desc)
              else
-               Post.includes(:topic).order(created_at: :desc)
+               Post.includes(:topic, :tags).order(created_at: :desc)
              end
   end
 
@@ -22,6 +22,7 @@ class PostsController < ApplicationController
   # Create post form under particular topic
   def new
     @post = @topic.posts.build
+    prepare_post_form_data
   end
 
   # Create post under particular topic
@@ -31,6 +32,7 @@ class PostsController < ApplicationController
     if @post.save
       redirect_to topic_posts_path(@topic), notice: "Post created successfully."
     else
+      prepare_post_form_data
       render :new
     end
   end
@@ -38,6 +40,7 @@ class PostsController < ApplicationController
   # Edit post under particular topic
   def edit
     # @post is set via set_post
+    prepare_post_form_data
   end
 
   # Update post under particular topic
@@ -45,6 +48,7 @@ class PostsController < ApplicationController
     if @post.update(post_params)
       redirect_to topic_post_path(@topic, @post), notice: "Post updated successfully."
     else
+      prepare_post_form_data
       render :edit
     end
   end
@@ -66,12 +70,16 @@ class PostsController < ApplicationController
   end
 
   def set_post
-    @post = @topic.posts.find(params[:id])
+    @post = @topic.posts.includes(:tags).find(params[:id])
   end
 
   # STRONG PARAMS
   # topic_id can come from nested route OR from query params
   def post_params
-    params.require(:post).permit(:title, :body, :topic_id, :tag_names)
+    params.require(:post).permit(:title, :body, :topic_id, tag_ids: [], tags_attributes: [:name])
+  end
+
+  def prepare_post_form_data
+    @available_tags = Tag.order(:name)
   end
 end
