@@ -1,10 +1,15 @@
 require 'rails_helper'
 
 RSpec.describe PostsController, type: :controller do
+  let(:user) { create(:user) }
   let(:topic) { create(:topic) }
   let(:post_record) { create(:post, topic: topic) }
   let(:valid_attributes) { { title: 'New Post', body: 'New Post Body' } }
   let(:invalid_attributes) { { title: '', body: '' } }
+
+  before do
+    sign_in user
+  end
 
   # Helper method to avoid conflict with 'post' variable name
   def post_request(action, params:)
@@ -269,6 +274,19 @@ RSpec.describe PostsController, type: :controller do
 
       expect(response).to redirect_to(topic_posts_path(topic))
       expect(flash[:notice]).to eq('Post deleted successfully.')
+    end
+  end
+
+  describe 'authentication' do
+    it 'requires authentication to access posts' do
+      sign_out user
+      get :index, params: { topic_id: topic.id }
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
+    it 'allows authenticated users to access posts' do
+      get :index, params: { topic_id: topic.id }
+      expect(response).to have_http_status(:success)
     end
   end
 

@@ -1,7 +1,12 @@
 require 'rails_helper'
 
 RSpec.describe TagsController, type: :controller do
+  let(:user) { create(:user) }
   let!(:tag) { create(:tag) }
+
+  before do
+    sign_in user
+  end
 
   describe 'GET #index' do
     it 'assigns all tags' do

@@ -1,8 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe CommentsController, type: :controller do
+  let(:user) { create(:user) }
   let(:topic) { create(:topic) }
   let(:post_record) { create(:post, topic: topic) }
+
+  before do
+    sign_in user
+  end
 
   describe 'POST #create' do
     context 'with valid params' do
