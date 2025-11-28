@@ -16,6 +16,47 @@
 
 <hr>
 
+<h2>Ratings</h2>
+
+<% if @ratings_by_stars.any? %>
+  <h3>Rating Distribution</h3>
+  <ul>
+    <% [5, 4, 3, 2, 1].each do |star_count| %>
+      <% count = @ratings_by_stars[star_count] || 0 %>
+      <li>
+        <%= pluralize(star_count, 'star') %>: <%= pluralize(count, 'rating') %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No ratings yet. Be the first to rate this post!</p>
+<% end %>
+
+<h3>Rate this Post</h3>
+<%= form_with model: [@topic, @post, @rating], local: true do |f| %>
+  <% if @rating.errors.any? %>
+    <div id="rating_errors">
+      <h4><%= pluralize(@rating.errors.count, "error") %> prevented this rating from being saved:</h4>
+      <ul>
+        <% @rating.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :stars, "Select your rating:" %><br>
+    <% (1..5).each do |star| %>
+      <%= f.radio_button :stars, star %>
+      <%= f.label "stars_#{star}", pluralize(star, 'star') %>
+    <% end %>
+  </div>
+  <%= f.submit "Submit Rating" %>
+<% end %>
+
+<hr>
+
 <h2>Comments</h2>
 
 <% if @comments.any? %>

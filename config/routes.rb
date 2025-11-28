@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   resources :topics do
     resources :posts do
       resources :comments, only: [:create, :destroy]
+      resources :ratings, only: [:create]
     end
   end
 
