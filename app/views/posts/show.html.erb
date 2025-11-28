@@ -1,4 +1,9 @@
 <h1><%= @post.title %></h1>
+<% if @post.image.attached? %>
+  <div>
+    <%= image_tag @post.image, style: "max-width: 500px; max-height: 500px; margin-bottom: 20px;" %>
+  </div>
+<% end %>
 <p><%= simple_format(@post.body) %></p>
 <p>Topic: <%= link_to @topic.name, topic_posts_path(@topic) %></p>
 
