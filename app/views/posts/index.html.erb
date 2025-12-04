@@ -19,6 +19,7 @@
                       topic_post_path(post.topic, post) %>
         </h2>
         <p><%= truncate(post.body, length: 200) %></p>
+        <p><strong>Author:</strong> <%= post.user.email %></p>
         <% unless @topic %>
           <p><strong>Topic:</strong> <%= link_to post.topic.name, topic_posts_path(post.topic) %></p>
         <% end %>
