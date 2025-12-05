@@ -10,7 +10,10 @@ class PostsController < ApplicationController
     scope = scope.where(topic_id: @topic.id) if @topic
 
     @posts = scope
+               .left_outer_joins(:comments, :ratings)
+               .select("posts.*, COUNT(DISTINCT comments.id) AS comments_count, AVG(ratings.stars) AS average_rating")
                .includes(:topic, :tags, :user)
+               .group("posts.id")
                .order(created_at: :desc)
                .page(params[:page])
                .per(10)

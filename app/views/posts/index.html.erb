@@ -26,6 +26,16 @@
         <% if post.tags.any? %>
           <p><strong>Tags:</strong> <%= post.tags.map { |t| "##{t.name}" }.join(", ") %></p>
         <% end %>
+        <% average_rating = post.average_rating_value %>
+        <p>
+          <strong>Average:</strong>
+          <% if average_rating %>
+            <%= number_with_precision(average_rating, precision: 1) %> stars.
+          <% else %>
+            No ratings yet.
+          <% end %>
+        </p>
+        <p><strong><%= "#{pluralize(post.comments_count_value, "comment")}." %></strong></p>
       </li>
     <% end %>
   </ul>
