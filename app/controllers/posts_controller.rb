@@ -2,7 +2,7 @@
 class PostsController < ApplicationController
   before_action :set_topic_for_index, only: [:index]
   before_action :set_topic, except: [:index]
-  before_action :set_post, only: [:show, :edit, :update, :destroy]
+  before_action :set_post, only: [:show, :edit, :update, :destroy, :mark_as_read]
 
   # List all posts under particular topic (or all posts when no topic provided)
   def index
@@ -12,7 +12,7 @@ class PostsController < ApplicationController
     @posts = scope
                .left_outer_joins(:comments, :ratings)
                .select("posts.*, COUNT(DISTINCT comments.id) AS comments_count, AVG(ratings.stars) AS average_rating")
-               .includes(:topic, :tags, :user)
+               .includes(:topic, :tags, :user, :readers)
                .group("posts.id")
                .order(created_at: :desc)
                .page(params[:page])
@@ -25,6 +25,15 @@ class PostsController < ApplicationController
     @comments = @post.comments.includes(:user).order(created_at: :asc)
     @rating = @post.ratings.build
     @ratings_by_stars = @post.ratings.group(:stars).count
+    @is_unread = !@post.read_by?(current_user)
+  end
+
+  # Mark a post as read for the current user
+  def mark_as_read
+    unless @post.read_by?(current_user)
+      @post.readers << current_user
+    end
+    head :ok
   end
 
   # Create post form under particular topic

@@ -15,8 +15,12 @@
     <% @posts.each do |post| %>
       <li>
         <h2>
+          <% if current_user && !post.read_by?(current_user) %>
+            <span class="unread-indicator" title="Unread">●</span>
+          <% end %>
           <%= link_to "#{post.title} (#{post.topic.name})",
-                      topic_post_path(post.topic, post) %>
+                      topic_post_path(post.topic, post),
+                      class: current_user && !post.read_by?(current_user) ? 'unread-post' : '' %>
         </h2>
         <p><%= truncate(post.body, length: 200) %></p>
         <p><strong>Author:</strong> <%= post.user.email %></p>

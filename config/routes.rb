@@ -5,6 +5,9 @@ Rails.application.routes.draw do
     resources :posts do
       resources :comments, only: [:create, :destroy]
       resources :ratings, only: [:create]
+      member do
+        post :mark_as_read
+      end
     end
   end
 

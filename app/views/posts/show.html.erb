@@ -109,3 +109,27 @@
   </div>
   <%= f.submit "Post Comment" %>
 <% end %>
+
+<% if @is_unread %>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var csrfToken = document.querySelector('meta[name="csrf-token"]');
+      if (csrfToken) {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', '<%= mark_as_read_topic_post_path(@topic, @post) %>', true);
+        xhr.setRequestHeader('X-CSRF-Token', csrfToken.getAttribute('content'));
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.onreadystatechange = function() {
+          if (xhr.readyState === 4) {
+            if (xhr.status === 200) {
+              console.log('Post marked as read');
+            } else {
+              console.error('Failed to mark post as read');
+            }
+          }
+        };
+        xhr.send();
+      }
+    });
+  </script>
+<% end %>
