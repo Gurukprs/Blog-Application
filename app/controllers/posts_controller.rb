@@ -47,11 +47,15 @@ class PostsController < ApplicationController
     @post = @topic.posts.build(post_params)
     @post.user = current_user
 
-    if @post.save
-      redirect_to topic_posts_path(@topic), notice: "Post created successfully."
-    else
-      prepare_post_form_data
-      render :new
+    respond_to do |format|
+      if @post.save
+        format.html { redirect_to topic_posts_path(@topic), notice: "Post created successfully." }
+        format.js
+      else
+        prepare_post_form_data
+        format.html { render :new }
+        format.js { render :create_failure, status: :unprocessable_entity }
+      end
     end
   end
 
