@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   root to: 'topics#index'
   resources :topics do
     resources :posts do
-      resources :comments, only: [:create, :destroy]
+      resources :comments, only: [:create, :destroy] do
+        resources :user_comment_ratings, only: [:create, :index]
+      end
       resources :ratings, only: [:create]
       member do
         post :mark_as_read

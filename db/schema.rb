@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2025_12_05_034713) do
+ActiveRecord::Schema.define(version: 2025_12_14_071403) do
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -100,6 +100,17 @@ ActiveRecord::Schema.define(version: 2025_12_05_034713) do
     t.datetime "updated_at", precision: 6, null: false
   end
 
+  create_table "user_comment_ratings", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.integer "comment_id", null: false
+    t.integer "stars"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["comment_id"], name: "index_user_comment_ratings_on_comment_id"
+    t.index ["user_id", "comment_id"], name: "index_user_comment_ratings_on_user_id_and_comment_id", unique: true
+    t.index ["user_id"], name: "index_user_comment_ratings_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -123,4 +134,6 @@ ActiveRecord::Schema.define(version: 2025_12_05_034713) do
   add_foreign_key "posts_users_read_status", "posts"
   add_foreign_key "posts_users_read_status", "users"
   add_foreign_key "ratings", "posts"
+  add_foreign_key "user_comment_ratings", "comments"
+  add_foreign_key "user_comment_ratings", "users"
 end
