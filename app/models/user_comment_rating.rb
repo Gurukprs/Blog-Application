@@ -6,3 +6,4 @@ class UserCommentRating < ApplicationRecord
   validates :user_id, uniqueness: { scope: :comment_id, message: "has already rated this comment" }
 end
 
+

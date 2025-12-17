@@ -37,3 +37,4 @@ class UserCommentRatingsController < ApplicationController
   end
 end
 
+
