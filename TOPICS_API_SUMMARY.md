@@ -39,3 +39,4 @@ Due to Rails `wrap_parameters format: [:json]` configuration, JSON request bodie
 - Proper HTTP status codes (201 for create, 204 for delete, 404 for not found, 422 for validation errors)
 
 
+
