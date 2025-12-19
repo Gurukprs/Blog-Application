@@ -8,6 +8,11 @@ class Post < ApplicationRecord
   has_one_attached :image
   has_and_belongs_to_many :readers, class_name: 'User', join_table: 'posts_users_read_status'
 
+  # Scope to filter posts created between two dates (inclusive)
+  scope :created_between, ->(from_date, to_date) do
+    where(created_at: from_date.beginning_of_day..to_date.end_of_day)
+  end
+
   validates :title, presence: true
   validates :title, length: { maximum: 20 }
   validates :body, presence: true
