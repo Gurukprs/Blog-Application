@@ -44,8 +44,8 @@ class Post < ApplicationRecord
   end
 
   def average_rating_value
-    if has_attribute?(:average_rating)
-      self[:average_rating]&.to_f
+    if has_attribute?(:rating_average)
+      self[:rating_average]&.to_f
     else
       ratings.average(:stars)&.to_f
     end

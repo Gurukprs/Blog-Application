@@ -26,10 +26,7 @@ class PostsController < ApplicationController
     scope = scope.created_between(from_date, to_date)
 
     @posts = scope
-               .left_outer_joins(:comments, :ratings)
-               .select("posts.*, COUNT(DISTINCT comments.id) AS comments_count, AVG(ratings.stars) AS average_rating")
                .includes(:topic, :tags, :user, :readers)
-               .group("posts.id")
                .order(created_at: :desc)
                .page(params[:page])
                .per(10)
