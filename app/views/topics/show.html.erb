@@ -1,15 +1,36 @@
-<h1><%= @topic.name %></h1>
+<div class="row">
+  <div class="col-md-12">
+    <h1><%= @topic.name %></h1>
+  </div>
+</div>
 
-<h2>Posts</h2>
+<div class="row mb-3">
+  <div class="col-md-12">
+    <h2>Posts</h2>
+    <%= link_to "New Post", new_topic_post_path(@topic), class: "btn btn-primary" %>
+  </div>
+</div>
 
-<%= link_to "New Post", new_topic_post_path(@topic) %>
+<div class="row">
+  <div class="col-md-12">
+    <% if @posts.any? %>
+      <div class="list-group">
+        <% @posts.each do |post| %>
+          <%= link_to topic_post_path(@topic, post), class: "list-group-item list-group-item-action" do %>
+            <h5 class="mb-1"><%= post.title %></h5>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        No posts yet. <%= link_to "Create the first post", new_topic_post_path(@topic), class: "alert-link" %>.
+      </div>
+    <% end %>
+  </div>
+</div>
 
-<ul>
-  <% @posts.each do |post| %>
-    <li>
-      <%= link_to post.title, topic_post_path(@topic, post) %>
-    </li>
-  <% end %>
-</ul>
-
-<%= link_to "Back to Topics", topics_path %>
+<div class="row mt-3">
+  <div class="col-md-12">
+    <%= link_to "Back to Topics", topics_path, class: "btn btn-secondary" %>
+  </div>
+</div>

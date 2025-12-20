@@ -1,144 +1,217 @@
-<h1><%= @post.title %></h1>
-<% if @post.image.attached? %>
-  <div>
-    <%= image_tag @post.image, style: "max-width: 500px; max-height: 500px; margin-bottom: 20px;" %>
+<div class="row">
+  <div class="col-md-12">
+    <h1><%= @post.title %></h1>
   </div>
-<% end %>
-<p><%= simple_format(@post.body) %></p>
-<p><strong>Author:</strong> <%= @post.user.email %></p>
-<p>Topic: <%= link_to @topic.name, topic_posts_path(@topic) %></p>
+</div>
 
-<% if @post.tags.any? %>
-  <p><strong>Tags:</strong> <%= @post.tags.map { |t| "##{t.name}" }.join(", ") %></p>
-<% end %>
+<div class="row">
+  <div class="col-md-12">
+    <% if @post.image.attached? %>
+      <div class="mb-3">
+        <%= image_tag @post.image, class: "img-fluid rounded", style: "max-width: 500px; max-height: 500px;" %>
+      </div>
+    <% end %>
+    
+    <div class="card mb-3">
+      <div class="card-body">
+        <p class="card-text"><%= simple_format(@post.body) %></p>
+      </div>
+      <div class="card-footer">
+        <p class="mb-1"><strong>Author:</strong> <%= @post.user.email %></p>
+        <p class="mb-1">Topic: <%= link_to @topic.name, topic_posts_path(@topic), class: "text-decoration-none" %></p>
+        <% if @post.tags.any? %>
+          <p class="mb-0">
+            <strong>Tags:</strong> 
+            <% @post.tags.each do |tag| %>
+              <span class="badge bg-secondary"><%= tag.name %></span>
+            <% end %>
+          </p>
+        <% end %>
+      </div>
+    </div>
 
-<% if can?(:update, @post) %>
-  <%= link_to 'Edit', edit_topic_post_path(@topic, @post) %> |
-<% end %>
-<% if can?(:destroy, @post) %>
-  <%= button_to 'Delete',
-                topic_post_path(@topic, @post),
-                method: :delete,
-                data: { confirm: 'Are you sure?' },
-                form: { style: 'display:inline' } %> |
-<% end %>
-<%= link_to 'Back to Posts', topic_posts_path(@topic) %>
+    <div class="mb-3">
+      <% if can?(:update, @post) %>
+        <%= link_to 'Edit', edit_topic_post_path(@topic, @post), class: "btn btn-sm btn-outline-primary" %>
+      <% end %>
+      <% if can?(:destroy, @post) %>
+        <%= button_to 'Delete',
+                      topic_post_path(@topic, @post),
+                      method: :delete,
+                      data: { confirm: 'Are you sure?' },
+                      class: "btn btn-sm btn-outline-danger",
+                      form: { style: 'display:inline' } %>
+      <% end %>
+      <%= link_to 'Back to Posts', topic_posts_path(@topic), class: "btn btn-sm btn-secondary" %>
+    </div>
+  </div>
+</div>
 
 <hr>
 
-<h2>Ratings</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h2>Ratings</h2>
 
-<% if @ratings_by_stars.any? %>
-  <h3>Rating Distribution</h3>
-  <ul>
-    <% [5, 4, 3, 2, 1].each do |star_count| %>
-      <% count = @ratings_by_stars[star_count] || 0 %>
-      <li>
-        <%= pluralize(star_count, 'star') %>: <%= pluralize(count, 'rating') %>
-      </li>
+    <% if @ratings_by_stars.any? %>
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="mb-0">Rating Distribution</h5>
+        </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush">
+            <% [5, 4, 3, 2, 1].each do |star_count| %>
+              <% count = @ratings_by_stars[star_count] || 0 %>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <%= pluralize(star_count, 'star') %>
+                <span class="badge bg-primary rounded-pill"><%= pluralize(count, 'rating') %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        No ratings yet. Be the first to rate this post!
+      </div>
     <% end %>
-  </ul>
-<% else %>
-  <p>No ratings yet. Be the first to rate this post!</p>
-<% end %>
+  </div>
+</div>
 
 <h3>Rate this Post</h3>
-<%= form_with model: [@topic, @post, @rating], local: true do |f| %>
-  <% if @rating.errors.any? %>
-    <div id="rating_errors">
-      <h4><%= pluralize(@rating.errors.count, "error") %> prevented this rating from being saved:</h4>
-      <ul>
-        <% @rating.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<div class="row">
+  <div class="col-md-6">
+    <%= form_with model: [@topic, @post, @rating], local: true, html: { class: "needs-validation" } do |f| %>
+      <% if @rating.errors.any? %>
+        <div class="alert alert-danger" id="rating_errors">
+          <h5 class="alert-heading"><%= pluralize(@rating.errors.count, "error") %> prevented this rating from being saved:</h5>
+          <ul class="mb-0">
+            <% @rating.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div>
-    <%= f.label :stars, "Select your rating:" %><br>
-    <% (1..5).each do |star| %>
-      <%= f.radio_button :stars, star %>
-      <%= f.label "stars_#{star}", pluralize(star, 'star') %>
+      <div class="mb-3">
+        <%= f.label :stars, "Select your rating:", class: "form-label" %>
+        <div class="btn-group" role="group" aria-label="Rating">
+          <% (1..5).each do |star| %>
+            <%= f.radio_button :stars, star, class: "btn-check" %>
+            <%= f.label "stars_#{star}", pluralize(star, 'star'), class: "btn btn-outline-primary" %>
+          <% end %>
+        </div>
+        <% if @rating.errors[:stars].any? %>
+          <div class="invalid-feedback d-block">
+            <%= @rating.errors[:stars].join(", ") %>
+          </div>
+        <% end %>
+      </div>
+      <%= f.submit "Submit Rating", class: "btn btn-primary" %>
     <% end %>
   </div>
-  <%= f.submit "Submit Rating" %>
-<% end %>
+</div>
 
 <hr>
 
-<h2>Comments</h2>
+<div class="row">
+  <div class="col-md-12">
+    <h2>Comments</h2>
 
-<% if @comments.any? %>
-  <ul>
-    <% @comments.each do |comment| %>
-      <li>
-        <p><%= simple_format(comment.body) %></p>
-        <p><strong>Author:</strong> <%= comment.user.email %></p>
-        <small><%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %></small>
-        
-        <div style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
-          <% existing_rating = comment.user_comment_ratings.find_by(user: current_user) %>
-          <% if existing_rating %>
-            <p><strong>Your rating:</strong> 
-              <% existing_rating.stars.times do %>
-                ⭐
-              <% end %>
-              (<%= pluralize(existing_rating.stars, 'star') %>)
-            </p>
-          <% else %>
-            <p><strong>Rate this comment:</strong></p>
-            <%= form_with model: [@topic, @post, comment, UserCommentRating.new], url: topic_post_comment_user_comment_ratings_path(@topic, @post, comment), local: true do |f| %>
-              <div>
-                <% (1..5).each do |star| %>
-                  <%= f.radio_button :stars, star %>
-                  <%= f.label "stars_#{star}", "#{star}⭐" %>
+    <% if @comments.any? %>
+      <div class="mb-4">
+        <% @comments.each do |comment| %>
+          <div class="card mb-3">
+            <div class="card-body">
+              <p class="card-text"><%= simple_format(comment.body) %></p>
+              <p class="card-text">
+                <small class="text-muted">
+                  <strong>Author:</strong> <%= comment.user.email %> | 
+                  <%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %>
+                </small>
+              </p>
+              
+              <div class="mt-3 p-3 bg-light rounded">
+                <% existing_rating = comment.user_comment_ratings.find_by(user: current_user) %>
+                <% if existing_rating %>
+                  <p class="mb-2"><strong>Your rating:</strong> 
+                    <% existing_rating.stars.times do %>
+                      ⭐
+                    <% end %>
+                    (<%= pluralize(existing_rating.stars, 'star') %>)
+                  </p>
+                <% else %>
+                  <p class="mb-2"><strong>Rate this comment:</strong></p>
+                  <%= form_with model: [@topic, @post, comment, UserCommentRating.new], url: topic_post_comment_user_comment_ratings_path(@topic, @post, comment), local: true, html: { class: "needs-validation" } do |f| %>
+                    <div class="mb-2">
+                      <div class="btn-group btn-group-sm" role="group" aria-label="Comment Rating">
+                        <% (1..5).each do |star| %>
+                          <%= f.radio_button :stars, star, class: "btn-check" %>
+                          <%= f.label "stars_#{star}", "#{star}⭐", class: "btn btn-outline-primary" %>
+                        <% end %>
+                      </div>
+                    </div>
+                    <%= f.submit "Submit Rating", class: "btn btn-sm btn-primary" %>
+                  <% end %>
                 <% end %>
+                
+                <p class="mt-2 mb-0">
+                  <%= link_to "View All Ratings (#{comment.user_comment_ratings.count})", 
+                              topic_post_comment_user_comment_ratings_path(@topic, @post, comment),
+                              class: "btn btn-sm btn-outline-info" %>
+                </p>
               </div>
-              <%= f.submit "Submit Rating", style: "margin-top: 5px;" %>
-            <% end %>
-          <% end %>
-          
-          <p style="margin-top: 10px;">
-            <%= link_to "View All Ratings (#{comment.user_comment_ratings.count})", 
-                        topic_post_comment_user_comment_ratings_path(@topic, @post, comment),
-                        class: "button" %>
-          </p>
-        </div>
-        
-        <% if can?(:destroy, comment) %>
-          <%= button_to 'Delete',
-                        topic_post_comment_path(@topic, @post, comment),
-                        method: :delete,
-                        data: { confirm: 'Delete this comment?' },
-                        form: { style: 'display:inline' } %>
+              
+              <% if can?(:destroy, comment) %>
+                <div class="mt-2">
+                  <%= button_to 'Delete',
+                                topic_post_comment_path(@topic, @post, comment),
+                                method: :delete,
+                                data: { confirm: 'Delete this comment?' },
+                                class: "btn btn-sm btn-outline-danger",
+                                form: { style: 'display:inline' } %>
+                </div>
+              <% end %>
+            </div>
+          </div>
         <% end %>
-      </li>
+      </div>
+    <% else %>
+      <div class="alert alert-info">
+        No comments yet. Be the first to comment!
+      </div>
     <% end %>
-  </ul>
-<% else %>
-  <p>No comments yet. Be the first to comment!</p>
-<% end %>
+  </div>
+</div>
 
 <h3>Add a Comment</h3>
-<%= form_with model: [@topic, @post, @comment], local: true do |f| %>
-  <% if @comment.errors.any? %>
-    <div id="comment_errors">
-      <h4><%= pluralize(@comment.errors.count, "error") %> prevented this comment from being saved:</h4>
-      <ul>
-        <% @comment.errors.full_messages.each do |msg| %>
-          <li><%= msg %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+<div class="row">
+  <div class="col-md-8">
+    <%= form_with model: [@topic, @post, @comment], local: true, html: { class: "needs-validation" } do |f| %>
+      <% if @comment.errors.any? %>
+        <div class="alert alert-danger" id="comment_errors">
+          <h5 class="alert-heading"><%= pluralize(@comment.errors.count, "error") %> prevented this comment from being saved:</h5>
+          <ul class="mb-0">
+            <% @comment.errors.full_messages.each do |msg| %>
+              <li><%= msg %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
 
-  <div>
-    <%= f.label :body, "Comment" %><br>
-    <%= f.text_area :body, rows: 4 %>
+      <div class="mb-3">
+        <%= f.label :body, "Comment", class: "form-label" %>
+        <%= f.text_area :body, rows: 4, class: "form-control #{'is-invalid' if @comment.errors[:body].any?}" %>
+        <% if @comment.errors[:body].any? %>
+          <div class="invalid-feedback">
+            <%= @comment.errors[:body].join(", ") %>
+          </div>
+        <% end %>
+      </div>
+      <%= f.submit "Post Comment", class: "btn btn-primary" %>
+    <% end %>
   </div>
-  <%= f.submit "Post Comment" %>
-<% end %>
+</div>
 
 <% if @is_unread %>
   <script>
