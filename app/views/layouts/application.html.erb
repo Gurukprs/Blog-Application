@@ -43,6 +43,11 @@
                   Logged in as: <strong><%= current_user.email %></strong>
                 </span>
               </li>
+              <li class="nav-item me-2">
+                <button type="button" class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+                  Edit Profile
+                </button>
+              </li>
               <li class="nav-item">
                 <%= button_to 'Sign out',
                               destroy_user_session_path,
@@ -80,5 +85,20 @@
 
       <%= yield %>
     </div>
+
+    <!-- Edit Profile Modal -->
+    <% if user_signed_in? %>
+      <%= render 'users/edit_modal', user: current_user %>
+    <% end %>
+
+    <script>
+      // Auto-open modal if there are profile errors
+      <% if flash[:open_modal] == 'editProfileModal' %>
+        document.addEventListener('DOMContentLoaded', function() {
+          var modal = new bootstrap.Modal(document.getElementById('editProfileModal'));
+          modal.show();
+        });
+      <% end %>
+    </script>
   </body>
 </html>

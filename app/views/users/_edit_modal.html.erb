@@ -1,0 +1,97 @@
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <%= form_with(model: user, url: user_path, method: :patch, local: true, html: { class: "needs-validation", novalidate: true }) do |form| %>
+        <div class="modal-body">
+          <% if flash[:profile_errors] %>
+            <div class="alert alert-danger">
+              <h6><%= pluralize(flash[:profile_errors].count, "error") %> prohibited this profile from being saved:</h6>
+              <ul class="mb-0">
+                <% flash[:profile_errors].each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <div class="mb-3">
+            <%= form.label :email, class: "form-label" %>
+            <%= form.email_field :email, class: "form-control", required: true, autofocus: true %>
+            <div class="invalid-feedback">
+              Please provide a valid email.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :password, "New Password", class: "form-label" %>
+            <%= form.password_field :password, class: "form-control", autocomplete: "new-password" %>
+            <small class="form-text text-muted">Leave blank if you don't want to change it</small>
+            <div class="invalid-feedback">
+              Password must be at least 6 characters.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :password_confirmation, "Confirm New Password", class: "form-label" %>
+            <%= form.password_field :password_confirmation, class: "form-control", autocomplete: "new-password" %>
+            <div class="invalid-feedback">
+              Passwords must match.
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <%= form.label :current_password, "Current Password", class: "form-label" %>
+            <%= form.password_field :current_password, class: "form-control", autocomplete: "current-password", id: "user_current_password" %>
+            <small class="form-text text-muted">Required if changing password. We need your current password to confirm your changes.</small>
+            <div class="invalid-feedback">
+              Please provide your current password.
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <%= form.submit "Update Profile", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Bootstrap form validation and dynamic current_password requirement
+  (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+      var forms = document.getElementsByClassName('needs-validation');
+      var validation = Array.prototype.filter.call(forms, function(form) {
+        var passwordField = form.querySelector('#user_password');
+        var currentPasswordField = form.querySelector('#user_current_password');
+        
+        // Make current_password required only if password is being changed
+        if (passwordField && currentPasswordField) {
+          passwordField.addEventListener('input', function() {
+            if (this.value.length > 0) {
+              currentPasswordField.setAttribute('required', 'required');
+            } else {
+              currentPasswordField.removeAttribute('required');
+            }
+          });
+        }
+        
+        form.addEventListener('submit', function(event) {
+          if (form.checkValidity() === false) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      });
+    }, false);
+  })();
+</script>
+

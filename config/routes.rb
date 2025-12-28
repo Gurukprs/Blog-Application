@@ -15,6 +15,7 @@ Rails.application.routes.draw do
 
   resources :posts, only: [:index]
   resources :tags
+  resource :user, only: [:edit, :update], controller: 'users'
 end
 
 # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
