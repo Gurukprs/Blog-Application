@@ -7,3 +7,4 @@ class SignUpMailJob < ApplicationJob
   end
 end
 
+
