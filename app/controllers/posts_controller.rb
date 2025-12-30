@@ -6,8 +6,24 @@ class PostsController < ApplicationController
 
   # List all posts under particular topic (or all posts when no topic provided)
   def index
+    # Determine date range: use params if present, otherwise default to yesterday/today
+    from_param = params[:from_date]
+    to_param   = params[:to_date]
+
+    if from_param.present? && to_param.present?
+      from_date = Date.parse(from_param) rescue Date.yesterday
+      to_date   = Date.parse(to_param)   rescue Date.today
+    else
+      from_date = Date.yesterday
+      to_date   = Date.today
+    end
+
+    @from_date = from_date
+    @to_date   = to_date
+
     scope = Post.all
     scope = scope.where(topic_id: @topic.id) if @topic
+    scope = scope.created_between(from_date, to_date)
 
     @posts = scope
                .left_outer_joins(:comments, :ratings)

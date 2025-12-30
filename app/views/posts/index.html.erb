@@ -6,6 +6,24 @@
   <% end %>
 </h1>
 
+<div class="posts-filter">
+  <%= form_with url: (@topic ? topic_posts_path(@topic) : posts_path), method: :get, local: true do %>
+    <div>
+      <%= label_tag :from_date, "From date" %>
+      <%= date_field_tag :from_date, @from_date %>
+    </div>
+
+    <div>
+      <%= label_tag :to_date, "To date" %>
+      <%= date_field_tag :to_date, @to_date %>
+    </div>
+
+    <div>
+      <%= submit_tag "Show details" %>
+    </div>
+  <% end %>
+</div>
+
 <% if @topic %>
   <%= link_to "New Post", new_topic_post_path(@topic) %>
 <% end %>

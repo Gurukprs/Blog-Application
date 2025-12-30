@@ -1,5 +1,9 @@
 <h1>Topics</h1>
 
+<p>
+  <%= link_to "View All Posts", posts_path %>
+</p>
+
 <ul>
   <% @topics.each do |topic| %>
     <li><%= link_to topic.name, topic %></li>
