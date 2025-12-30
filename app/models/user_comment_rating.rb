@@ -7,3 +7,4 @@ class UserCommentRating < ApplicationRecord
 end
 
 
+
