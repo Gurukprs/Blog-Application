@@ -80,6 +80,8 @@ RSpec.describe PostsController, type: :controller do
       expect(assigns(:topic)).to eq(topic)
       expect(assigns(:comment)).to be_a_new(Comment)
       expect(assigns(:comments)).to include(existing_comment)
+      expect(assigns(:rating)).to be_a_new(Rating)
+      expect(assigns(:ratings_by_stars)).to be_a(Hash)
     end
 
     it 'raises error for post from different topic' do
@@ -159,6 +161,21 @@ RSpec.describe PostsController, type: :controller do
         new_post = Post.last
         expect(new_post.tags.pluck(:name)).to include('ruby')
       end
+
+      it 'attaches an image when image is provided' do
+        image_path = Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')
+        image_file = fixture_file_upload(image_path, 'image/png')
+        
+        post_request :create,
+                      params: {
+                        topic_id: topic.id,
+                        post: valid_attributes.merge(image: image_file)
+                      }
+
+        new_post = Post.last
+        expect(new_post.image).to be_attached
+        expect(new_post.image.content_type).to eq('image/png')
+      end
     end
 
     context 'with invalid parameters' do
@@ -202,6 +219,22 @@ RSpec.describe PostsController, type: :controller do
 
         expect(response).to redirect_to(topic_post_path(topic, post_record))
         expect(flash[:notice]).to eq('Post updated successfully.')
+      end
+
+      it 'updates the post image when a new image is provided' do
+        # Attach initial image
+        image_path = Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')
+        initial_image = fixture_file_upload(image_path, 'image/png')
+        post_record.image.attach(initial_image)
+        initial_blob_id = post_record.image.blob.id
+
+        # Update with new image
+        new_image = fixture_file_upload(image_path, 'image/png')
+        patch :update, params: { topic_id: topic.id, id: post_record.id, post: { image: new_image } }
+        post_record.reload
+
+        expect(post_record.image).to be_attached
+        expect(post_record.image.blob.id).not_to eq(initial_blob_id)
       end
     end
 

@@ -81,7 +81,7 @@ class PostsController < ApplicationController
   # STRONG PARAMS
   # topic_id can come from nested route OR from query params
   def post_params
-    params.require(:post).permit(:title, :body, :topic_id, tag_ids: [], tags_attributes: [:name])
+    params.require(:post).permit(:title, :body, :topic_id, :image, tag_ids: [], tags_attributes: [:name])
   end
 
   def prepare_post_form_data

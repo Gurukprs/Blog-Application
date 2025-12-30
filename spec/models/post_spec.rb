@@ -6,6 +6,7 @@ RSpec.describe Post, type: :model do
     it { should have_many(:comments).dependent(:destroy) }
     it { should have_many(:post_tags).dependent(:destroy) }
     it { should have_many(:tags).through(:post_tags) }
+    it { should have_many(:ratings).dependent(:destroy) }
   end
 
   describe 'validations' do
@@ -87,6 +88,57 @@ RSpec.describe Post, type: :model do
     it 'returns a string list of tags' do
       post = create(:post, topic: topic, tag_names: 'ruby, rails')
       expect(post.tag_names).to eq('ruby, rails')
+    end
+  end
+
+  describe 'image attachment' do
+    let(:topic) { create(:topic) }
+    let(:post) { create(:post, topic: topic) }
+
+    it 'can have an image attached' do
+      expect(post.image).not_to be_attached
+      
+      post.image.attach(
+        io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')),
+        filename: 'test_image.png',
+        content_type: 'image/png'
+      )
+      
+      expect(post.image).to be_attached
+      expect(post.image.filename.to_s).to eq('test_image.png')
+    end
+
+    it 'can have only one image attached' do
+      post.image.attach(
+        io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')),
+        filename: 'test_image.png',
+        content_type: 'image/png'
+      )
+      
+      first_blob_id = post.image.blob.id
+      
+      # Attach a new image - should replace the old one
+      post.image.attach(
+        io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')),
+        filename: 'new_image.png',
+        content_type: 'image/png'
+      )
+      
+      expect(post.image.blob.id).not_to eq(first_blob_id)
+      expect(post.image.filename.to_s).to eq('new_image.png')
+    end
+
+    it 'removes image when post is destroyed' do
+      post.image.attach(
+        io: File.open(Rails.root.join('spec', 'fixtures', 'files', 'test_image.png')),
+        filename: 'test_image.png',
+        content_type: 'image/png'
+      )
+      
+      blob_id = post.image.blob.id
+      post.destroy
+      
+      expect(ActiveStorage::Blob.find_by(id: blob_id)).to be_nil
     end
   end
 end

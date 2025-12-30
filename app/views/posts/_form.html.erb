@@ -1,4 +1,4 @@
-<%= form_with model: [@topic, @post], local: true do |f| %>
+<%= form_with model: [@topic, @post], local: true, multipart: true do |f| %>
   <% if @post.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@post.errors.count, "error") %> prohibited this post from being saved:</h2>
@@ -18,6 +18,18 @@
   <div>
     <%= f.label :body %><br>
     <%= f.text_area :body, rows: 10 %>
+  </div>
+
+  <div>
+    <%= f.label :image, "Post Image" %><br>
+    <% if @post.image.attached? %>
+      <div>
+        <%= image_tag @post.image, style: "max-width: 300px; max-height: 300px;" %>
+        <br>
+        <small>Current image (upload new image to replace)</small>
+      </div>
+    <% end %>
+    <%= f.file_field :image, accept: "image/*" %>
   </div>
 
   <div>
