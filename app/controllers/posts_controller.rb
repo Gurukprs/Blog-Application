@@ -10,7 +10,7 @@ class PostsController < ApplicationController
     scope = scope.where(topic_id: @topic.id) if @topic
 
     @posts = scope
-               .includes(:topic, :tags)
+               .includes(:topic, :tags, :user)
                .order(created_at: :desc)
                .page(params[:page])
                .per(10)
@@ -19,7 +19,7 @@ class PostsController < ApplicationController
   # View a post under particular topic
   def show
     @comment = @post.comments.build
-    @comments = @post.comments.order(created_at: :asc)
+    @comments = @post.comments.includes(:user).order(created_at: :asc)
     @rating = @post.ratings.build
     @ratings_by_stars = @post.ratings.group(:stars).count
   end
@@ -33,6 +33,7 @@ class PostsController < ApplicationController
   # Create post under particular topic
   def create
     @post = @topic.posts.build(post_params)
+    @post.user = current_user
 
     if @post.save
       redirect_to topic_posts_path(@topic), notice: "Post created successfully."
@@ -44,12 +45,14 @@ class PostsController < ApplicationController
 
   # Edit post under particular topic
   def edit
+    authorize! :update, @post
     # @post is set via set_post
     prepare_post_form_data
   end
 
   # Update post under particular topic
   def update
+    authorize! :update, @post
     if @post.update(post_params)
       redirect_to topic_post_path(@topic, @post), notice: "Post updated successfully."
     else
@@ -60,6 +63,7 @@ class PostsController < ApplicationController
 
   # Delete post under particular topic
   def destroy
+    authorize! :destroy, @post
     @post.destroy
     redirect_to topic_posts_path(@topic), notice: "Post deleted successfully."
   end
@@ -75,7 +79,7 @@ class PostsController < ApplicationController
   end
 
   def set_post
-    @post = @topic.posts.includes(:tags).find(params[:id])
+    @post = @topic.posts.includes(:tags, :user).find(params[:id])
   end
 
   # STRONG PARAMS

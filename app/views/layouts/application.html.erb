@@ -19,7 +19,13 @@
     <% end %>
 
     <% if user_signed_in? %>
-      <p>Logged in as: <strong><%= current_user.email %></strong> | <%= link_to 'Sign out', destroy_user_session_path, method: :delete %></p>
+      <p>
+        Logged in as: <strong><%= current_user.email %></strong> |
+        <%= button_to 'Sign out',
+                      destroy_user_session_path,
+                      method: :delete,
+                      form: { style: 'display:inline' } %>
+      </p>
     <% else %>
       <p><%= link_to 'Sign in', new_user_session_path %> | <%= link_to 'Sign up', new_user_registration_path %></p>
     <% end %>

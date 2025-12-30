@@ -28,6 +28,9 @@ gem 'kaminari', '~> 1.2'
 # Authentication
 gem 'devise', '~> 4.8'
 
+# Authorization
+gem 'cancancan', '~> 3.2'
+
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
