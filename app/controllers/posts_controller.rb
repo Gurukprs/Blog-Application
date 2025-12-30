@@ -20,6 +20,8 @@ class PostsController < ApplicationController
   def show
     @comment = @post.comments.build
     @comments = @post.comments.order(created_at: :asc)
+    @rating = @post.ratings.build
+    @ratings_by_stars = @post.ratings.group(:stars).count
   end
 
   # Create post form under particular topic
