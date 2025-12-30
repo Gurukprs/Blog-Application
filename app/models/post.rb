@@ -9,6 +9,7 @@ class Post < ApplicationRecord
   has_and_belongs_to_many :readers, class_name: 'User', join_table: 'posts_users_read_status'
 
   validates :title, presence: true
+  validates :title, length: { maximum: 20 }
   validates :body, presence: true
 
   attr_accessor :pending_tag_names

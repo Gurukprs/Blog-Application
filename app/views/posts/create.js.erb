@@ -1,0 +1,8 @@
+var loader = document.getElementById('post-loading');
+if (loader) { loader.style.display = 'none'; }
+
+alert("Post created successfully");
+window.location = "<%= topic_post_path(@topic, @post) %>";
+
+
+

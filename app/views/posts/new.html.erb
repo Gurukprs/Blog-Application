@@ -2,4 +2,16 @@
 
 <%= render 'form' %>
 
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var form = document.getElementById('post-form');
+    if (!form) return;
+
+    form.addEventListener('submit', function() {
+      var loader = document.getElementById('post-loading');
+      if (loader) { loader.style.display = 'block'; }
+    });
+  });
+</script>
+
 <%= link_to "Back to Posts", topic_posts_path(@topic) %>

@@ -1,0 +1,7 @@
+var loader = document.getElementById('post-loading');
+if (loader) { loader.style.display = 'none'; }
+
+alert("<%= j(@post.errors.full_messages.join(', ')) %>");
+
+
+

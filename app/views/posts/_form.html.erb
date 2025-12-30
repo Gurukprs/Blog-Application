@@ -1,4 +1,7 @@
-<%= form_with model: [@topic, @post], local: true, multipart: true do |f| %>
+<%= form_with model: [@topic, @post],
+              data: { remote: true },
+              html: { id: "post-form" },
+              multipart: true do |f| %>
   <% if @post.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@post.errors.count, "error") %> prohibited this post from being saved:</h2>
@@ -50,6 +53,8 @@
     <% end %>
     <small>Leave blank if you do not need new tags.</small>
   </div>
+
+  <div id="post-loading" style="display:none; margin: 10px 0; font-weight: bold;">Submitting...</div>
 
   <%= f.submit %>
 <% end %>
