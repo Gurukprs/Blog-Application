@@ -6,6 +6,7 @@ class Post < ApplicationRecord
   has_many :tags, through: :post_tags
   has_many :ratings, dependent: :destroy
   has_one_attached :image
+  has_and_belongs_to_many :readers, class_name: 'User', join_table: 'posts_users_read_status'
 
   validates :title, presence: true
   validates :body, presence: true
@@ -50,6 +51,11 @@ class Post < ApplicationRecord
     else
       comments.size
     end
+  end
+
+  def read_by?(user)
+    return false unless user
+    readers.include?(user)
   end
 
   private
