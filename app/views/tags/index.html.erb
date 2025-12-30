@@ -1,0 +1,31 @@
+<h1>Tags</h1>
+
+<p><%= link_to "New Tag", new_tag_path %></p>
+
+<% if @tags.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Posts</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @tags.each do |tag| %>
+        <tr>
+          <td><%= tag.name %></td>
+          <td><%= tag.posts.count %></td>
+          <td>
+            <%= link_to "Edit", edit_tag_path(tag) %> |
+            <%= link_to "Delete", tag_path(tag), method: :delete, data: { confirm: "Delete this tag?" } %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No tags yet. Create the first one!</p>
+<% end %>
+
+

@@ -34,15 +34,31 @@ RSpec.describe PostsController, type: :controller do
       expect(assigns(:posts).first).to eq(new_post)
       expect(assigns(:posts).last).to eq(old_post)
     end
+
+    it 'lists all posts when no topic is specified' do
+      topic_one = create(:topic, name: 'One')
+      topic_two = create(:topic, name: 'Two')
+      post_in_one = create(:post, topic: topic_one)
+      post_in_two = create(:post, topic: topic_two)
+
+      get :index
+
+      expect(response).to have_http_status(:success)
+      expect(assigns(:posts)).to include(post_in_one, post_in_two)
+    end
   end
 
   describe 'GET #show' do
+    let!(:existing_comment) { create(:comment, post: post_record) }
+
     it 'shows a post under a particular topic' do
       get :show, params: { topic_id: topic.id, id: post_record.id }
 
       expect(response).to have_http_status(:success)
       expect(assigns(:post)).to eq(post_record)
       expect(assigns(:topic)).to eq(topic)
+      expect(assigns(:comment)).to be_a_new(Comment)
+      expect(assigns(:comments)).to include(existing_comment)
     end
 
     it 'raises error for post from different topic' do
@@ -66,6 +82,8 @@ RSpec.describe PostsController, type: :controller do
   end
 
   describe 'POST #create' do
+    let!(:existing_tag) { create(:tag, name: 'rails') }
+
     context 'with valid parameters' do
       it 'creates a new post under a particular topic' do
         expect {
@@ -90,6 +108,35 @@ RSpec.describe PostsController, type: :controller do
 
         new_post = Post.last
         expect(new_post.topic_id).to eq(topic.id)
+      end
+
+      it 'associates existing tags when tag_ids are provided' do
+        post_request :create,
+                      params: {
+                        topic_id: topic.id,
+                        post: valid_attributes.merge(tag_ids: [existing_tag.id])
+                      }
+
+        new_post = Post.last
+        expect(new_post.tags).to include(existing_tag)
+      end
+
+      it 'creates new tags from nested attributes' do
+        expect {
+          post_request :create,
+                        params: {
+                          topic_id: topic.id,
+                          post: valid_attributes.merge(
+                            tags_attributes: {
+                              "0" => { name: 'Ruby' },
+                              "1" => { name: '' }
+                            }
+                          )
+                        }
+        }.to change(Tag, :count).by(1)
+
+        new_post = Post.last
+        expect(new_post.tags.pluck(:name)).to include('ruby')
       end
     end
 
@@ -186,6 +233,13 @@ RSpec.describe PostsController, type: :controller do
         action: 'show',
         topic_id: topic.id.to_s,
         id: post_record.id.to_s
+      )
+    end
+
+    it 'supports a global /posts route for listing all posts' do
+      expect(get: "/posts").to route_to(
+        controller: 'posts',
+        action: 'index'
       )
     end
   end

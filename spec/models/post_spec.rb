@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe Post, type: :model do
   describe 'associations' do
     it { should belong_to(:topic) }
+    it { should have_many(:comments).dependent(:destroy) }
+    it { should have_many(:post_tags).dependent(:destroy) }
+    it { should have_many(:tags).through(:post_tags) }
   end
 
   describe 'validations' do
@@ -70,6 +73,20 @@ RSpec.describe Post, type: :model do
       post_id = post.id
       post.destroy
       expect(Post.find_by(id: post_id)).to be_nil
+    end
+  end
+
+  describe '#tag_names and tagging' do
+    let(:topic) { create(:topic) }
+
+    it 'persists tags from a comma-separated list (case insensitive)' do
+      post = create(:post, topic: topic, tag_names: 'Ruby, Rails, ruby ')
+      expect(post.tags.map(&:name)).to match_array(%w[ruby rails])
+    end
+
+    it 'returns a string list of tags' do
+      post = create(:post, topic: topic, tag_names: 'ruby, rails')
+      expect(post.tag_names).to eq('ruby, rails')
     end
   end
 end

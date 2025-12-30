@@ -1,21 +1,28 @@
 # app/controllers/posts_controller.rb
 class PostsController < ApplicationController
-  before_action :set_topic
+  before_action :set_topic_for_index, only: [:index]
+  before_action :set_topic, except: [:index]
   before_action :set_post, only: [:show, :edit, :update, :destroy]
 
-  # List all posts under particular topic
+  # List all posts under particular topic (or all posts when no topic provided)
   def index
-    @posts = @topic.posts.order(created_at: :desc)
+    @posts = if @topic
+               @topic.posts.includes(:tags).order(created_at: :desc)
+             else
+               Post.includes(:topic, :tags).order(created_at: :desc)
+             end
   end
 
   # View a post under particular topic
   def show
-    # @post is set via set_post
+    @comment = @post.comments.build
+    @comments = @post.comments.order(created_at: :asc)
   end
 
   # Create post form under particular topic
   def new
     @post = @topic.posts.build
+    prepare_post_form_data
   end
 
   # Create post under particular topic
@@ -25,6 +32,7 @@ class PostsController < ApplicationController
     if @post.save
       redirect_to topic_posts_path(@topic), notice: "Post created successfully."
     else
+      prepare_post_form_data
       render :new
     end
   end
@@ -32,6 +40,7 @@ class PostsController < ApplicationController
   # Edit post under particular topic
   def edit
     # @post is set via set_post
+    prepare_post_form_data
   end
 
   # Update post under particular topic
@@ -39,6 +48,7 @@ class PostsController < ApplicationController
     if @post.update(post_params)
       redirect_to topic_post_path(@topic, @post), notice: "Post updated successfully."
     else
+      prepare_post_form_data
       render :edit
     end
   end
@@ -51,17 +61,25 @@ class PostsController < ApplicationController
 
   private
 
+  def set_topic_for_index
+    @topic = Topic.find_by(id: params[:topic_id]) if params[:topic_id].present?
+  end
+
   def set_topic
     @topic = Topic.find(params[:topic_id])
   end
 
   def set_post
-    @post = @topic.posts.find(params[:id])
+    @post = @topic.posts.includes(:tags).find(params[:id])
   end
 
   # STRONG PARAMS
   # topic_id can come from nested route OR from query params
   def post_params
-    params.require(:post).permit(:title, :body, :topic_id)
+    params.require(:post).permit(:title, :body, :topic_id, tag_ids: [], tags_attributes: [:name])
+  end
+
+  def prepare_post_form_data
+    @available_tags = Tag.order(:name)
   end
 end

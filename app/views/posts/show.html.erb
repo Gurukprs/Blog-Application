@@ -1,6 +1,57 @@
 <h1><%= @post.title %></h1>
-<p><%= @post.body %></p>
+<p><%= simple_format(@post.body) %></p>
 <p>Topic: <%= link_to @topic.name, topic_posts_path(@topic) %></p>
+
+<% if @post.tags.any? %>
+  <p><strong>Tags:</strong> <%= @post.tags.map { |t| "##{t.name}" }.join(", ") %></p>
+<% end %>
+
 <%= link_to 'Edit', edit_topic_post_path(@topic, @post) %> |
-<%= link_to 'Delete', topic_post_path(@topic, @post), method: :delete, data: { confirm: 'Are you sure?' } %> |
+<%= button_to 'Delete',
+              topic_post_path(@topic, @post),
+              method: :delete,
+              data: { confirm: 'Are you sure?' },
+              form: { style: 'display:inline' } %> |
 <%= link_to 'Back to Posts', topic_posts_path(@topic) %>
+
+<hr>
+
+<h2>Comments</h2>
+
+<% if @comments.any? %>
+  <ul>
+    <% @comments.each do |comment| %>
+      <li>
+        <p><%= simple_format(comment.body) %></p>
+        <small><%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %></small>
+        <%= button_to 'Delete',
+                      topic_post_comment_path(@topic, @post, comment),
+                      method: :delete,
+                      data: { confirm: 'Delete this comment?' },
+                      form: { style: 'display:inline' } %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No comments yet. Be the first to comment!</p>
+<% end %>
+
+<h3>Add a Comment</h3>
+<%= form_with model: [@topic, @post, @comment], local: true do |f| %>
+  <% if @comment.errors.any? %>
+    <div id="comment_errors">
+      <h4><%= pluralize(@comment.errors.count, "error") %> prevented this comment from being saved:</h4>
+      <ul>
+        <% @comment.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div>
+    <%= f.label :body, "Comment" %><br>
+    <%= f.text_area :body, rows: 4 %>
+  </div>
+  <%= f.submit "Post Comment" %>
+<% end %>

@@ -1,4 +1,4 @@
-<%= form_with model: [@topic, @post] do |f| %>
+<%= form_with model: [@topic, @post], local: true do |f| %>
   <% if @post.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(@post.errors.count, "error") %> prohibited this post from being saved:</h2>
@@ -18,6 +18,25 @@
   <div>
     <%= f.label :body %><br>
     <%= f.text_area :body, rows: 10 %>
+  </div>
+
+  <div>
+    <%= f.label :tag_ids, "Choose Existing Tags" %><br>
+    <%= f.collection_select :tag_ids,
+                            @available_tags,
+                            :id,
+                            :name,
+                            { include_hidden: false },
+                            { multiple: true, size: 5 } %>
+    <small>Hold Ctrl/Cmd to select multiple tags.</small>
+  </div>
+
+  <div>
+    <%= f.label :tags_attributes, "Add New Tags" %><br>
+    <% 3.times do |index| %>
+      <%= text_field_tag "post[tags_attributes][#{index}][name]", "", id: "post_tags_attributes_#{index}_name", placeholder: "e.g. ruby" %>
+    <% end %>
+    <small>Leave blank if you do not need new tags.</small>
   </div>
 
   <%= f.submit %>
