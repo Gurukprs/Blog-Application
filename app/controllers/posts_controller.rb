@@ -22,7 +22,7 @@ class PostsController < ApplicationController
   # View a post under particular topic
   def show
     @comment = @post.comments.build
-    @comments = @post.comments.includes(:user).order(created_at: :asc)
+    @comments = @post.comments.includes(:user, :user_comment_ratings).order(created_at: :asc)
     @rating = @post.ratings.build
     @ratings_by_stars = @post.ratings.group(:stars).count
     @is_unread = !@post.read_by?(current_user)

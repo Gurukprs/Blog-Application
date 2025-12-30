@@ -76,6 +76,36 @@
         <p><%= simple_format(comment.body) %></p>
         <p><strong>Author:</strong> <%= comment.user.email %></p>
         <small><%= comment.created_at.strftime("%b %d, %Y %I:%M %p") %></small>
+        
+        <div style="margin-top: 10px; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+          <% existing_rating = comment.user_comment_ratings.find_by(user: current_user) %>
+          <% if existing_rating %>
+            <p><strong>Your rating:</strong> 
+              <% existing_rating.stars.times do %>
+                ⭐
+              <% end %>
+              (<%= pluralize(existing_rating.stars, 'star') %>)
+            </p>
+          <% else %>
+            <p><strong>Rate this comment:</strong></p>
+            <%= form_with model: [@topic, @post, comment, UserCommentRating.new], url: topic_post_comment_user_comment_ratings_path(@topic, @post, comment), local: true do |f| %>
+              <div>
+                <% (1..5).each do |star| %>
+                  <%= f.radio_button :stars, star %>
+                  <%= f.label "stars_#{star}", "#{star}⭐" %>
+                <% end %>
+              </div>
+              <%= f.submit "Submit Rating", style: "margin-top: 5px;" %>
+            <% end %>
+          <% end %>
+          
+          <p style="margin-top: 10px;">
+            <%= link_to "View All Ratings (#{comment.user_comment_ratings.count})", 
+                        topic_post_comment_user_comment_ratings_path(@topic, @post, comment),
+                        class: "button" %>
+          </p>
+        </div>
+        
         <% if can?(:destroy, comment) %>
           <%= button_to 'Delete',
                         topic_post_comment_path(@topic, @post, comment),

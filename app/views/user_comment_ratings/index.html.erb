@@ -1,0 +1,52 @@
+<h1>Comment Ratings</h1>
+
+<p><strong>Comment:</strong></p>
+<div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 20px;">
+  <p><%= simple_format(@comment.body) %></p>
+  <p><strong>Author:</strong> <%= @comment.user.email %></p>
+  <small><%= @comment.created_at.strftime("%b %d, %Y %I:%M %p") %></small>
+</div>
+
+<h2>All User Ratings</h2>
+
+<% if @user_comment_ratings.any? %>
+  <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+      <tr style="background-color: #f0f0f0;">
+        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">User Email</th>
+        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rating</th>
+        <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Rated At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @user_comment_ratings.each do |rating| %>
+        <tr>
+          <td style="padding: 10px; border: 1px solid #ddd;"><%= rating.user.email %></td>
+          <td style="padding: 10px; border: 1px solid #ddd;">
+            <%= pluralize(rating.stars, 'star') %>
+            <% rating.stars.times do %>
+              ⭐
+            <% end %>
+          </td>
+          <td style="padding: 10px; border: 1px solid #ddd;">
+            <%= rating.created_at.strftime("%b %d, %Y %I:%M %p") %>
+          </td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+  
+  <p style="margin-top: 20px;">
+    <strong>Total Ratings:</strong> <%= @user_comment_ratings.count %><br>
+    <strong>Average Rating:</strong> 
+    <% avg = @user_comment_ratings.average(:stars) %>
+    <%= avg ? sprintf("%.2f", avg) : "N/A" %> stars
+  </p>
+<% else %>
+  <p>No ratings yet for this comment.</p>
+<% end %>
+
+<hr>
+<%= link_to 'Back to Post', topic_post_path(@topic, @post) %>
+
+
