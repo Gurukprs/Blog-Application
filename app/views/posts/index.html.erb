@@ -1,0 +1,18 @@
+<h1>Posts for <%= @topic.name %></h1>
+
+<%= link_to "New Post", new_topic_post_path(@topic) %>
+
+<% if @posts.any? %>
+  <ul>
+    <% @posts.each do |post| %>
+      <li>
+        <h2><%= link_to post.title, topic_post_path(@topic, post) %></h2>
+        <p><%= truncate(post.body, length: 200) %></p>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p>No posts yet. <%= link_to "Create the first post", new_topic_post_path(@topic) %>.</p>
+<% end %>
+
+<%= link_to "Back to Topics", topics_path %>

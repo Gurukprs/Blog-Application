@@ -1,0 +1,15 @@
+<h1><%= @topic.name %></h1>
+
+<h2>Posts</h2>
+
+<%= link_to "New Post", new_topic_post_path(@topic) %>
+
+<ul>
+  <% @posts.each do |post| %>
+    <li>
+      <%= link_to post.title, topic_post_path(@topic, post) %>
+    </li>
+  <% end %>
+</ul>
+
+<%= link_to "Back to Topics", topics_path %>
