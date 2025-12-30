@@ -36,6 +36,22 @@ class Post < ApplicationRecord
     tags.pluck(:name).join(", ")
   end
 
+  def average_rating_value
+    if has_attribute?(:average_rating)
+      self[:average_rating]&.to_f
+    else
+      ratings.average(:stars)&.to_f
+    end
+  end
+
+  def comments_count_value
+    if has_attribute?(:comments_count)
+      self[:comments_count].to_i
+    else
+      comments.size
+    end
+  end
+
   private
 
   def sync_pending_tags
