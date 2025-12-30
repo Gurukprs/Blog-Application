@@ -55,6 +55,8 @@ group :development do
   gem 'rack-mini-profiler', '~> 2.0'
   # Strong migrations for safer database migrations
   gem 'strong_migrations'
+  # Letter opener for viewing emails in development
+  gem 'letter_opener'
 end
 
 group :test do
