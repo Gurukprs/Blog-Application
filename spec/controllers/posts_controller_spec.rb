@@ -46,6 +46,27 @@ RSpec.describe PostsController, type: :controller do
       expect(response).to have_http_status(:success)
       expect(assigns(:posts)).to include(post_in_one, post_in_two)
     end
+
+    it 'paginates topic posts with 10 items per page' do
+      create_list(:post, 12, topic: topic)
+
+      get :index, params: { topic_id: topic.id }
+
+      expect(assigns(:posts).size).to eq(10)
+      expect(assigns(:posts).current_page).to eq(1)
+      expect(assigns(:posts).limit_value).to eq(10)
+      expect(assigns(:posts).first.association(:topic)).to be_loaded
+    end
+
+    it 'returns remaining posts on the next page' do
+      create_list(:post, 15)
+
+      get :index, params: { page: 2 }
+
+      expect(assigns(:posts).current_page).to eq(2)
+      expect(assigns(:posts).size).to eq(5)
+      expect(assigns(:posts).limit_value).to eq(10)
+    end
   end
 
   describe 'GET #show' do
