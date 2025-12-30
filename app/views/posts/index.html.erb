@@ -1,99 +1,152 @@
-<h1>
-  <% if @topic %>
-    Posts for <%= @topic.name %>
-  <% else %>
-    All Posts
-  <% end %>
-</h1>
-
-<div class="posts-filter">
-  <%= form_with url: (@topic ? topic_posts_path(@topic) : posts_path), method: :get, local: true do %>
-    <div>
-      <%= label_tag :from_date, "From date" %>
-      <%= date_field_tag :from_date, @from_date %>
-    </div>
-
-    <div>
-      <%= label_tag :to_date, "To date" %>
-      <%= date_field_tag :to_date, @to_date %>
-    </div>
-
-    <div>
-      <%= submit_tag "Show details" %>
-    </div>
-  <% end %>
+<div class="row">
+  <div class="col-md-12">
+    <h1>
+      <% if @topic %>
+        Posts for <%= @topic.name %>
+      <% else %>
+        All Posts
+      <% end %>
+    </h1>
+  </div>
 </div>
 
-<% if @topic %>
-  <%= link_to "New Post", new_topic_post_path(@topic) %>
-<% end %>
+<div class="row mb-3">
+  <div class="col-md-12">
+    <div class="card">
+      <div class="card-header">
+        <h5 class="mb-0">Filter Posts</h5>
+      </div>
+      <div class="card-body">
+        <%= form_with url: (@topic ? topic_posts_path(@topic) : posts_path), method: :get, local: true, html: { class: "row g-3" } do %>
+          <div class="col-md-4">
+            <%= label_tag :from_date, "From date", class: "form-label" %>
+            <%= date_field_tag :from_date, @from_date, class: "form-control" %>
+          </div>
 
-<% if @posts.any? %>
-  <ul>
-    <% @posts.each do |post| %>
-      <li>
-        <h2>
-          <% if current_user && !post.read_by?(current_user) %>
-            <span class="unread-indicator" title="Unread">●</span>
-          <% end %>
-          <%= link_to "#{post.title} (#{post.topic.name})",
-                      topic_post_path(post.topic, post),
-                      class: current_user && !post.read_by?(current_user) ? 'unread-post' : '' %>
-        </h2>
-        <p><%= truncate(post.body, length: 200) %></p>
-        <p><strong>Author:</strong> <%= post.user.email %></p>
-        <% unless @topic %>
-          <p><strong>Topic:</strong> <%= link_to post.topic.name, topic_posts_path(post.topic) %></p>
+          <div class="col-md-4">
+            <%= label_tag :to_date, "To date", class: "form-label" %>
+            <%= date_field_tag :to_date, @to_date, class: "form-control" %>
+          </div>
+
+          <div class="col-md-4 d-flex align-items-end">
+            <%= submit_tag "Show details", class: "btn btn-primary" %>
+          </div>
         <% end %>
-        <% if post.tags.any? %>
-          <p><strong>Tags:</strong> <%= post.tags.map { |t| "##{t.name}" }.join(", ") %></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mb-3">
+  <div class="col-md-12">
+    <% if @topic %>
+      <%= link_to "New Post", new_topic_post_path(@topic), class: "btn btn-primary" %>
+    <% end %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <% if @posts.any? %>
+      <div class="row">
+        <% @posts.each do |post| %>
+          <div class="col-md-12 mb-3">
+            <div class="card <%= 'border-warning' if current_user && !post.read_by?(current_user) %>">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                  <% if current_user && !post.read_by?(current_user) %>
+                    <span class="badge bg-warning text-dark me-2" title="Unread">New</span>
+                  <% end %>
+                  <%= link_to post.title, topic_post_path(post.topic, post), class: "text-decoration-none" %>
+                  <% unless @topic %>
+                    <small class="text-muted">(<%= link_to post.topic.name, topic_posts_path(post.topic), class: "text-decoration-none" %>)</small>
+                  <% end %>
+                </h5>
+              </div>
+              <div class="card-body">
+                <p class="card-text"><%= truncate(post.body, length: 200) %></p>
+                <div class="row">
+                  <div class="col-md-6">
+                    <p class="mb-1"><strong>Author:</strong> <%= post.user.email %></p>
+                    <% unless @topic %>
+                      <p class="mb-1"><strong>Topic:</strong> <%= link_to post.topic.name, topic_posts_path(post.topic), class: "text-decoration-none" %></p>
+                    <% end %>
+                  </div>
+                  <div class="col-md-6">
+                    <% if post.tags.any? %>
+                      <p class="mb-1">
+                        <strong>Tags:</strong> 
+                        <% post.tags.each do |tag| %>
+                          <span class="badge bg-secondary"><%= tag.name %></span>
+                        <% end %>
+                      </p>
+                    <% end %>
+                    <% average_rating = post.average_rating_value %>
+                    <p class="mb-1">
+                      <strong>Average:</strong>
+                      <% if average_rating %>
+                        <%= number_with_precision(average_rating, precision: 1) %> ⭐
+                      <% else %>
+                        <span class="text-muted">No ratings yet.</span>
+                      <% end %>
+                    </p>
+                    <p class="mb-0"><strong><%= "#{pluralize(post.comments_count_value, "comment")}." %></strong></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         <% end %>
-        <% average_rating = post.average_rating_value %>
-        <p>
-          <strong>Average:</strong>
-          <% if average_rating %>
-            <%= number_with_precision(average_rating, precision: 1) %> stars.
-          <% else %>
-            No ratings yet.
-          <% end %>
-        </p>
-        <p><strong><%= "#{pluralize(post.comments_count_value, "comment")}." %></strong></p>
-      </li>
-    <% end %>
-  </ul>
-<% else %>
-  <% if @topic %>
-    <p>No posts yet. <%= link_to "Create the first post", new_topic_post_path(@topic) %>.</p>
-  <% else %>
-    <p>No posts available.</p>
-  <% end %>
-<% end %>
-
-<% if @posts.respond_to?(:current_page) && @posts.total_pages > 1 %>
-  <nav class="pagination-nav">
-    <% prev_page = @posts.prev_page %>
-    <% next_page = @posts.next_page %>
-
-    <% if prev_page %>
-      <%= link_to "Previous Page",
-                  url_for(page: prev_page),
-                  class: "pagination-button" %>
+      </div>
     <% else %>
-      <span class="pagination-button disabled">Previous Page</span>
+      <div class="alert alert-info">
+        <% if @topic %>
+          No posts yet. <%= link_to "Create the first post", new_topic_post_path(@topic), class: "alert-link" %>.
+        <% else %>
+          No posts available.
+        <% end %>
+      </div>
     <% end %>
+  </div>
+</div>
 
-    <span class="pagination-button current">
-      Page <%= @posts.current_page %> of <%= @posts.total_pages %>
-    </span>
+<div class="row">
+  <div class="col-md-12">
+    <% if @posts.respond_to?(:current_page) && @posts.total_pages > 1 %>
+      <nav aria-label="Page navigation">
+        <ul class="pagination justify-content-center">
+          <% prev_page = @posts.prev_page %>
+          <% next_page = @posts.next_page %>
 
-    <% if next_page %>
-      <%= link_to "Next Page",
-                  url_for(page: next_page),
-                  class: "pagination-button" %>
-    <% else %>
-      <span class="pagination-button disabled">Next Page</span>
+          <li class="page-item <%= 'disabled' unless prev_page %>">
+            <% if prev_page %>
+              <%= link_to "Previous", url_for(page: prev_page), class: "page-link" %>
+            <% else %>
+              <span class="page-link">Previous</span>
+            <% end %>
+          </li>
+
+          <li class="page-item disabled">
+            <span class="page-link">
+              Page <%= @posts.current_page %> of <%= @posts.total_pages %>
+            </span>
+          </li>
+
+          <li class="page-item <%= 'disabled' unless next_page %>">
+            <% if next_page %>
+              <%= link_to "Next", url_for(page: next_page), class: "page-link" %>
+            <% else %>
+              <span class="page-link">Next</span>
+            <% end %>
+          </li>
+        </ul>
+      </nav>
     <% end %>
-  </nav>
-<% end %>
+  </div>
+</div>
 
-<%= link_to "Back to Topics", topics_path %>
+<div class="row mt-3">
+  <div class="col-md-12">
+    <%= link_to "Back to Topics", topics_path, class: "btn btn-secondary" %>
+  </div>
+</div>

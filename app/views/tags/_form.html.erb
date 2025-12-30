@@ -1,8 +1,8 @@
-<%= form_with model: tag, local: true do |f| %>
+<%= form_with model: tag, local: true, html: { class: "needs-validation" } do |f| %>
   <% if tag.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(tag.errors.count, "error") %> prohibited this tag from being saved:</h2>
-      <ul>
+    <div class="alert alert-danger" id="error_explanation">
+      <h5 class="alert-heading"><%= pluralize(tag.errors.count, "error") %> prohibited this tag from being saved:</h5>
+      <ul class="mb-0">
         <% tag.errors.full_messages.each do |msg| %>
           <li><%= msg %></li>
         <% end %>
@@ -10,11 +10,22 @@
     </div>
   <% end %>
 
-  <div>
-    <%= f.label :name %><br>
-    <%= f.text_field :name, autofocus: true %>
+  <div class="row">
+    <div class="col-md-6 mb-3">
+      <%= f.label :name, class: "form-label" %>
+      <%= f.text_field :name, autofocus: true, class: "form-control #{'is-invalid' if tag.errors[:name].any?}" %>
+      <% if tag.errors[:name].any? %>
+        <div class="invalid-feedback">
+          <%= tag.errors[:name].join(", ") %>
+        </div>
+      <% end %>
+    </div>
   </div>
 
-  <%= f.submit %>
+  <div class="row">
+    <div class="col-md-12">
+      <%= f.submit class: "btn btn-primary" %>
+    </div>
+  </div>
 <% end %>
 
